@@ -1,0 +1,94 @@
+#!/bin/bash
+
+VERSION=v0.12.0
+
+set -e
+
+help() {
+  echo "Usage:"
+  echo "  zmicro package install lima <args...>"
+  echo ""
+}
+
+install() {
+  # prepare vars
+  local name="lima"
+  # get system os/arch
+  local arch="$(os::arch)"
+  local os="Linux"
+  # usr_bin_dir
+  local usr_bin_dir=/usr/bin
+  local tmp_dir="/tmp/$name"
+  # files
+  local tmp_file="$name.tar.gz"
+  local bin_file="./bin/*"
+
+  if [ "$(os::is_macos)" = "true" ]; then
+    os="Darwin"
+    usr_bin_dir=/usr/local/bin
+
+    if [ "$arch" = "amd64" ]; then
+      arch="x86_64"
+    elif [ "$arch" = "arm64" ]; then
+      arch="arm64"
+    else
+      log::error "unknown architecture: $arch"
+      exit 1
+    fi
+  else
+    if [ "$arch" = "amd64" ]; then
+      arch="x86_64"
+    elif [ "$arch" = "arm64" ]; then
+      arch="aarch64"
+    else
+      log::error "unknown architecture: $arch"
+      exit 1
+    fi
+  fi
+
+  # prepare context
+  mkdir -p $tmp_dir
+  cd $tmp_dir
+
+  # reference: https://github.com/lima-vm/lima/releases
+  # example:
+  #   https://github.com/lima-vm/lima/releases/download/v0.12.0/lima-0.12.0-Darwin-arm64.tar.gz
+  #   https://github.com/lima-vm/lima/releases/download/v0.12.0/lima-0.12.0-Darwin-x86_64.tar.gz
+  # generate url
+  local url="https://github.com/lima-vm/lima/releases/download/$VERSION/${name}-${VERSION#v}-${os}-${arch}.tar.gz"
+  log::debug "[package][$name][$os][$arch] url: $url"
+
+  # download
+  os::curl --progress-bar -fSL $url -o $tmp_file
+
+  # extract
+  tar -zxvf $tmp_file >>/dev/null 2>&1
+
+  # install
+  sudo mv $bin_file $usr_bin_dir
+
+  # clean
+  rm -rf $tmp_dir
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  install
+  if [ $? -eq 0 ]; then
+    log::success "install lima success."
+    exit 0
+  else
+    log::error "install lima failed."
+    exit 1
+  fi
+}
+
+run() {
+  core $@
+}
+
+run $@
