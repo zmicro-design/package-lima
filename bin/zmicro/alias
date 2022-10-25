@@ -5,11 +5,11 @@ help() {
   echo "  zmicro lima <args ...>"
   echo ""
 
-  lima --help
+  limactl --help
 }
 
 version() {
-  lima version
+  limactl --version
 }
 
 core() {
