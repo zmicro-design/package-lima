@@ -15,6 +15,9 @@ install() {
   local arch="$(os::arch)"
   local os="Linux"
   # usr_bin_dir
+
+  local user_lib_dir=/usr/lib
+  local user_share_dir=/usr/share
   local usr_bin_dir=/usr/bin
   local tmp_dir="/tmp/$name"
   # files
@@ -23,6 +26,8 @@ install() {
 
   if [ "$(os::is_macos)" = "true" ]; then
     os="Darwin"
+    user_lib_dir=/usr/local/lib
+    user_share_dir=/usr/local/share
     usr_bin_dir=/usr/local/bin
 
     if [ "$arch" = "amd64" ]; then
@@ -44,6 +49,18 @@ install() {
     fi
   fi
 
+  if [ ! -d "$user_lib_dir" ]; then
+    sudo mkdir -p $user_lib_dir
+  fi
+
+  if [ ! -d "$user_share_dir" ]; then
+    sudo mkdir -p $user_share_dir
+  fi
+
+  if [ ! -d "$usr_bin_dir" ]; then
+    sudo mkdir -p $usr_bin_dir
+  fi
+
   # prepare context
   mkdir -p $tmp_dir
   cd $tmp_dir
@@ -63,7 +80,18 @@ install() {
   tar -zxvf $tmp_file >>/dev/null 2>&1
 
   # install
-  sudo mv $bin_file $usr_bin_dir
+  local lima_home=$user_lib_dir/lima
+  # lib
+  sudo cp -rf $tmp_dir $lima_home
+  # share'
+  sudo ln -sf $lima_home/share/lima $user_share_dir/lima
+  # bin
+  sudo ln -sf $lima_home/bin/lima $usr_bin_dir/lima
+  sudo ln -sf $lima_home/bin/limactl $usr_bin_dir/limactl
+  sudo ln -sf $lima_home/bin/docker.lima $usr_bin_dir/docker.lima
+  sudo ln -sf $lima_home/bin/podman.lima $usr_bin_dir/podman.lima
+  sudo ln -sf $lima_home/bin/nerdctl.lima $usr_bin_dir/nerdctl.lima
+  sudo ln -sf $lima_home/bin/apptainer.lima $usr_bin_dir/apptainer.lima
 
   # clean
   rm -rf $tmp_dir
