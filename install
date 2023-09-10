@@ -78,6 +78,7 @@ install() {
 
   # extract
   tar -zxvf $tmp_file >>/dev/null 2>&1
+  rm -rf $tmp_file
 
   # install
   local lima_home=$user_lib_dir/lima
