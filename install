@@ -81,6 +81,10 @@ install() {
 
   # install
   local lima_home=$user_lib_dir/lima
+  if [ -d "$lima_home" ]; then
+    sudo rm -rf $lima_home
+  fi
+
   # lib
   sudo cp -rf $tmp_dir $lima_home
   # share'
