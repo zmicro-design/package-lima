@@ -1,2 +1,2 @@
-VERSION=v1.2.4
+VERSION=v1.2.5
 DESCRIPTION="Package lima - Linux virtual machines, typically on macOS, for running containerd"
