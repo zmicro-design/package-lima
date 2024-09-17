@@ -1,5 +1,5 @@
 #!/bin/bash
 
 export PACKAGE_CORE_NAME="lima"
-export PACKAGE_CORE_VERSION=v0.20.1
+export PACKAGE_CORE_VERSION=v0.23.2
 export PACKAGE_CORE_RELEASE_DOWNLOAD="https://github.com/lima-vm/lima/releases/download"
